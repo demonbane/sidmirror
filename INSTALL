@@ -1,0 +1,23 @@
+Just untar, copy sidmirror.conf to /etc/sidmirror.conf and edit it, 
+and then run sidmirror.pl. You'll need to make sure that you have 
+the following available on your path:
+
+find
+rsync
+rm
+pidof
+gunzip
+echo
+savelog
+
+You'll also need the following Perl modules:
+
+Term::Progressbar
+Fcntl
+ConfigFile
+
+Most of these are probably already there. If you're not running a
+Debian system, or if you don't have debianutils installed, you may
+not have savelog. Without it, log rotation won't work and you might
+get an error on the console towards the end of the run, but
+everything else will still work just fine.
