@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 # cleanold.pl - delete old debs in local mirror
-# (c) 2003-2005 Alex Malinovich (demonbane@the-love-shack.net)
+# (c) 2003-2007 Alex Malinovich (demonbane@the-love-shack.net)
 # Released under the GPL
 # See www.fsf.org for a full copy of the GPL.
 
@@ -20,7 +20,7 @@ print ("Read ".($#filenames + 2)." entries...\n");
 foreach (@filenames) {
   chomp;
   if (++$cnt < 20) {
-    $delline = $delline." ".$_;
+    $delline = $delline." \"".$_."\"";
   }else {
     `rm $delline`;
     $delline = $_;

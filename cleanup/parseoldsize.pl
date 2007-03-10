@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 # parseoldsize.pl - calculate size of old debs
-# (c) 2003 Alex Malinovich (demonbane@the-love-shack.net)
+# (c) 2003-2007 Alex Malinovich (demonbane@the-love-shack.net)
 # Released under the GPL
 # See www.fsf.org for a full copy of the GPL.
 

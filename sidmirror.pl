@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 # sidmirror.pl - Sid mirroring script
-# (c) 2003-2005 Alex Malinovich (demonbane@the-love-shack.net)
+# (c) 2003-2007 Alex Malinovich (demonbane@the-love-shack.net)
 # Released under the GPL
 # See www.fsf.org for a full copy of the GPL.
 #
@@ -22,6 +22,8 @@
 # $arch - the architecture to copy. This has been tested with i386 and
 # amd64. All other architectures SHOULD work but they have not been
 # tested.
+
+$version="0.10"
 
 use Term::ProgressBar 2.00;
 use Fcntl;
@@ -53,9 +55,10 @@ if (-e "/etc/sidmirror.conf") {
   }
 
   if ($config_hash->{"Architecture"}) {
-    $arch = $config_hash->{"Architecture"};
+#    $arch = $config_hash->{"Architecture"};
+    @arch = split(/\,/, $config_hash->{"Architecture"});
   }else {
-    $arch = "i386";
+    $arch[0] = "i386";
   }
 
   if ($config_hash->{"LogDir"}) {
@@ -130,8 +133,15 @@ if (!sysopen(FH, "sidmirror.lock", O_WRONLY|O_EXCL|O_CREAT, 0400)) {
 ################################################
 do {
   print "Retrieving newest Packages.gz from $server...\n";
+  # Generate our include string
+  foreach $includearch (@arch) {
+    $includestring .= " --include \"/main/binary-$includearch/Packages.gz\"";
+    $includestring .= " --include \"/contrib/binary-$includearch/Packages.gz\"";
+    $includestring .= " --include \"/non-free/binary-$includearch/Packages.gz\"";
+    $includestring .= " --include \"/main/debian-installer/binary-$includearch/Packages.gz\"";
+  }
   $errcode = system(
-		    "rsync -P --recursive --times --verbose --compress --delete-excluded --include \"/main/binary-$arch/Packages.gz\" --include \"/contrib/binary-$arch/Packages.gz\" --include \"/non-free/binary-$arch/Packages.gz\" --include \"/main/debian-installer/binary-$arch/Packages.gz\" --include \"*/\" --exclude \"*\" $server\:\:$serverpath/dists/sid/ $rootdir/dists/sid/ 1> Package.output 2> Package.error"
+		    "rsync -P --recursive --times --verbose --compress --delete-excluded".$includestring." --include \"*/\" --exclude \"*\" $server\:\:$serverpath/dists/sid/ $rootdir/dists/sid/ 1> Package.output 2> Package.error"
 		   );
   $errcode /= 256;
   $retry = "false";
@@ -162,14 +172,16 @@ closedir DISTDIR;
 # Dirty hack, but necessary to include debian installer.
 push (@dirlist, "main/debian-installer");
 
-foreach (@dirlist) {
-  my $packname = "$rootdir/dists/sid/$_/binary-$arch/Packages.gz";
-  if (-s $packname) {
-    print "Reading records from $_ Packages.gz...\n";
-    $oldcount = $#packfile;
-    push (@packfile, `gunzip --to-stdout $packname`);
-    print (($#packfile + 1 - $oldcount), " records read from $_\n\n");
-    push (@modch, "$packname");
+foreach $packagearch (@arch) {
+  foreach (@dirlist) {
+    my $packname = "$rootdir/dists/sid/$_/binary-$packagearch/Packages.gz";
+    if (-s $packname) {
+      print "Reading records from ($packagearch) $_ Packages.gz...\n";
+      $oldcount = $#packfile;
+      push (@packfile, `gunzip --to-stdout $packname`);
+      print (($#packfile + 1 - $oldcount), " records read from $_\n\n");
+      push (@modch, "$packname");
+    }
   }
 }
 

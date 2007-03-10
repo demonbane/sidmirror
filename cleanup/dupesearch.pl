@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 # dupesearch.pl - delete old debs in local mirror
-# (c) 2003-2005 Alex Malinovich (demonbane@the-love-shack.net)
+# (c) 2003-2007 Alex Malinovich (demonbane@the-love-shack.net)
 # Released under the GPL
 # See www.fsf.org for a full copy of the GPL.
 
@@ -22,9 +22,9 @@ if ($config_hash->{"LocalPath"}) {
     die ("Invalid local repository path! Check sidmirror.conf");
 }
 if ($config_hash->{"Architecture"}) {
-    $arch = $config_hash->{"Architecture"};
+    @arch = split(/\,/, $config_hash->{"Architecture"});
 }else{
-    die ("Invalid architecture specified! Check sidmirror.conf");
+    $arch[0] = "i386";
 }
 
 if ($ARGV[0] eq "-a") {
@@ -39,13 +39,15 @@ opendir (DISTDIR, "$rootdir/dists/sid/");
 @dirlist = grep {!/^\./ && -d "$rootdir/dists/sid/$_"} readdir (DISTDIR);
 closedir DISTDIR;
 
-foreach (@dirlist) {
-  my $packname = "$rootdir/dists/sid/$_/binary-$arch/Packages.gz";
-  if (-s $packname) {
-    print "Reading records from $_ Packages.gz...\n";
-    $oldcount = $#packfile;
-    push (@packfile, `gunzip --to-stdout $packname`);
-    print ((++$#packfile - $oldcount), " records read from $_\n\n");
+foreach $packagearch (@arch) {
+  foreach (@dirlist) {
+    my $packname = "$rootdir/dists/sid/$_/binary-$packagearch/Packages.gz";
+    if (-s $packname) {
+      print "Reading records from $_ ($packagearch) Packages.gz...\n";
+      $oldcount = $#packfile;
+      push (@packfile, `gunzip --to-stdout $packname`);
+      print ((++$#packfile - $oldcount), " records read from $_\n\n");
+    }
   }
 }
 
