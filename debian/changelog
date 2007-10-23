@@ -15,8 +15,11 @@ sidmirror (0.11-2) unstable; urgency=low
     updates.
   * Err... disregard that last... looks like debcommit is smart enough to only
     use the most recent changes... And this is a COMPLETELY useless commit.
+  * Updated cleanold.pl to use unlink instead of rm. Looking through the code
+    I still have no idea what I was thinking when I wrote it. I'm not even
+    sure if half of it ever even ran. Cleaned up now.
 
- -- Alex Malinovich <demonbane@the-love-shack.net>  Tue, 23 Oct 2007 13:17:18 -0700
+ -- Alex Malinovich <demonbane@the-love-shack.net>  Tue, 23 Oct 2007 13:53:57 -0700
 
 sidmirror (0.11-1) unstable; urgency=low
 

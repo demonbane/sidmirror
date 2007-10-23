@@ -15,28 +15,16 @@ open (INFILE, "$myinfile");
 @filenames = <INFILE>;
 close INFILE;
 
-print ("Read ".($#filenames + 2)." entries...\n");
+print ("Read ".($#filenames + 1)." entries...\n");
 
-foreach (@filenames) {
-  chomp;
-  if (++$cnt < 20) {
-    $delline = $delline." \"".$_."\"";
-  }else {
-    `rm $delline`;
-    $delline = $_;
-    $cnt = 0;
-    $count += 19;
-  }
-}
+$count = unlink(@filenames);
 
-`rm $delline`;
-$count += $cnt;
-print "$count files deleted\n";
-if ($myinfile eq "deleteme.txt") {
-  $cnt = unlink $myinfile;
+if ($count != $#filenames + 1) {
+  print "$count files deleted - ",($filenames + 1 - $count)," files remain\n";
 }else {
-  unlink "outputresults.txt";
+  print "$count files deleted\n";
 }
+
 @oldfiles = ("dirliststuff.txt", "outputresults.txt", "deleteme.txt");
 
 foreach (@oldfiles) {

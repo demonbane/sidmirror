@@ -3,3 +3,4 @@
 * provide a Makefile to handle installation
 * optimize the damned search code... that's been bugging me for YEARS...
 * fix up the Debian bits to make it into a USABLE package
+* consolidate the cleanup scripts. All of those functions can just go into a single library, with a wrapper program written to still allow running individual scripts from the command line when necessary.
