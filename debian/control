@@ -1,0 +1,20 @@
+Source: sidmirror
+Section: net
+Priority: extra
+Maintainer: Alex Malinovich <demonbane@the-love-shack.net>
+Build-Depends: debhelper (>= 5)
+Standards-Version: 3.7.2
+
+Package: sidmirror
+Architecture: all
+Depends: ${perl:Depends}, libconfig-file-perl, libterm-progressbar-perl, rsync, wget, findutils, debianutils, gzip, sysvinit-utils
+Description: Multi-architecture Debian Unstable mirroring tool
+ sidmirror is a mirroring tool designed to mirror only Debian Unstable (sid)
+ while minimizing the amount of disk space necessary and the amount of
+ transfer bandwidth used. It relies on rsync for all mirroring operations,
+ and does a full scan of the existing files prior to beginning a transfer
+ to ensure that any unused files are promptly deleted.
+ .
+ sidmirror only requires enough space to contain a copy of the appropriate
+ architecture mirror at run time, allowing it to be used on systems where
+ hard drive space is extremely limited.

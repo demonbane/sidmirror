@@ -1,0 +1,58 @@
+#!/usr/bin/make -f
+# Sample debian/rules that uses debhelper.
+# GNU copyright 1997 to 1999 by Joey Hess.
+#
+# borrowed from the mp3burn package by <tmancill@debian.org>
+# modified by <demonbane@the-love-shack.net> for m3ugen
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+# This is the debhelper compatability version to use.
+export DH_COMPAT=5
+
+configure: 
+	dh_testdir
+	touch configure-stamp
+
+build: configure
+	dh_testdir
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp configure-stamp
+
+	dh_clean
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+
+	cp -p m3ugen `pwd`/debian/m3ugen/usr/bin
+
+# Build architecture-independent files here.
+binary-indep: build install
+	dh_testdir
+	dh_testroot
+	dh_installdocs
+	dh_installexamples
+	dh_installman m3ugen.1
+	dh_installchangelogs
+	dh_link
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+	dh_perl
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+# Build architecture-dependent files here.
+binary-arch: build install
+# We have nothing to do for arch "all" package
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install configure

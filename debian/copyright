@@ -1,0 +1,23 @@
+This package was debianized by Alex Malinovich <demonbane@the-love-shack.net> on
+Tue, 23 Oct 2007 12:19:59 -0700.
+
+It is available for download from http://www.the-love-shack.net/software/
+
+Upstream Author(s): 
+
+    Alex Malinovich <demonbane@the-love-shack.net>
+
+Copyright: 
+
+    Copyright (C) 2003-2007 Alex Malinovich
+
+License:
+
+    You are free to distribute this software under the terms of
+    the GNU General Public License  either version 2 of the License,
+    or (at your option) any later version.
+    On Debian systems, the complete text of the GNU General Public
+    License can be found in the file `/usr/share/common-licenses/GPL-2'.
+
+The Debian packaging is (C) 2007, Alex Malinovich <demonbane@the-love-shack.net> and
+is licensed under the GPL, see `/usr/share/common-licenses/GPL'.

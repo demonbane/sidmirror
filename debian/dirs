@@ -1,0 +1,4 @@
+usr/bin
+usr/lib/sidmirror
+etc
+var/log/sidmirror

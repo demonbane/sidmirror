@@ -1,0 +1,26 @@
+sidmirror (0.11-1) UNRELEASED; urgency=low
+
+  * Initial setup of Debian package. Still have a few kinks to work out, but
+    this will do for now.
+  * This version added one major new feature from legacy sidmirror. (legacy?
+    well I've been using this for 5 years now, so I guess so. :) ) Users can
+    now specify URL's in static-includes, which will be downloaded using wget
+    at the end of every run. This was necessary since it's impossible to get a
+    working Debian netboot install using only unstable. It's necessary to also
+    download one of the daily builds of the installer in order to match kernel
+    module versions. As this functionality has not been fully documented yet,
+    for the adventurous user, just add a line of the form
+    URL,localpath,command where URL is the full URL to an actual file,
+    localpath is where the file is to be downloaded TO, relative to LocalPath
+    in sidmirror.conf, and command (OPTIONAL) is a command to be run after the
+    download completes. It will be executed inside the localpath dir (not to
+    be confused with LocalPath).
+  * Updated sidmirror.pl and cleanup/dupesearch.pl to use Config::File instead
+    of ConfigFile.
+  * Changed the user prompt that happens prior to final rsync when not using
+    -a to be non-terminating. If the user answers "no" execution will continue
+    with the wget download (if appropriate) instead of terminating
+    immediately.
+  * Added new debian files to SVN.
+
+ -- Alex Malinovich <demonbane@the-love-shack.net>  Tue, 23 Oct 2007 12:55:29 -0700
