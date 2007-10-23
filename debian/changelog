@@ -8,8 +8,13 @@ sidmirror (0.11-2) unstable; urgency=low
     the config-file parsing to execute PRIOR to parsing the command line
     options, even though some of the options would cause the program to exit
     immediately... go figure.
+  * Added -n option to allow running without a config file.
+  * This will (I think) be the last time I do a full debcommit for EVERY
+    change. I need to get in the habit of only doing a debcommit when there
+    are a series of major changes and just doing a regular commit for minor
+    updates.
 
- -- Alex Malinovich <demonbane@the-love-shack.net>  Tue, 23 Oct 2007 13:03:11 -0700
+ -- Alex Malinovich <demonbane@the-love-shack.net>  Tue, 23 Oct 2007 13:15:20 -0700
 
 sidmirror (0.11-1) unstable; urgency=low
 

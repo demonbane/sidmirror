@@ -31,6 +31,7 @@ use Config::File;
 
 $autorun = 0;
 $force = 0;
+$noconfig = 0;
 
 while (@ARGV) {
   my $option = shift (@ARGV);
@@ -39,6 +40,7 @@ while (@ARGV) {
     print "Update local Debian Sid mirror.\n\n";
     print "  -h, --help      display this screen and exit\n";
     print "  -a, --auto      run in automated mode; no user intervention required\n";
+    print "  -n, --noconfig  run even if there is no config file (uses defaults)\n";
     print "  -f, --force     ignore lockfile and run anyway (DANGEROUS!)\n";
     print "  -v, --version   display version and exit\n\n";
     exit 0;
@@ -49,6 +51,8 @@ while (@ARGV) {
   }elsif ($option eq "-v" || $option eq "--version") {
     print "sidmirror $version\n";
     exit 0;
+  }elsif ($option eq "-n" || $option eq "--noconfig") {
+    $noconfig = 1;
   }elsif ($option =~ /^\w/) {
     $server = $option;
   }else {
@@ -100,9 +104,9 @@ if (-e "/etc/sidmirror.conf") {
   }else{
     $installpath = "./";
   }
-}else {
+}elsif (!$noconfig) {
   print "sidmirror configuration file (sidmirror.conf) not found!\n";
-  print "Please create an appropriate configuration file and try again.\n\n";
+  print "Please create an appropriate configuration file and try again or run\nwith the -n option to use defaults\n\n";
   exit 0;
 }
 
