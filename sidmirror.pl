@@ -23,14 +23,14 @@
 # amd64. All other architectures SHOULD work but they have not been
 # tested.
 
-$version="0.10"
+$version="0.11";
 
 use Term::ProgressBar 2.00;
 use Fcntl;
-use ConfigFile;
+use Config::File;
 
 if (-e "/etc/sidmirror.conf") {
-  my $config_hash = ConfigFile::read_config_file("/etc/sidmirror.conf");
+  my $config_hash = Config::File::read_config_file("/etc/sidmirror.conf");
 
   if ($config_hash->{"Mirror"}) {
     $server = $config_hash->{"Mirror"};
@@ -55,7 +55,6 @@ if (-e "/etc/sidmirror.conf") {
   }
 
   if ($config_hash->{"Architecture"}) {
-#    $arch = $config_hash->{"Architecture"};
     @arch = split(/\,/, $config_hash->{"Architecture"});
   }else {
     $arch[0] = "i386";
@@ -135,10 +134,14 @@ do {
   print "Retrieving newest Packages.gz from $server...\n";
   # Generate our include string
   foreach $includearch (@arch) {
-    $includestring .= " --include \"/main/binary-$includearch/Packages.gz\"";
-    $includestring .= " --include \"/contrib/binary-$includearch/Packages.gz\"";
-    $includestring .= " --include \"/non-free/binary-$includearch/Packages.gz\"";
-    $includestring .= " --include \"/main/debian-installer/binary-$includearch/Packages.gz\"";
+    push(@packageincludes,"/main/binary-$includearch/Packages.gz",
+			  "/contrib/binary-$includearch/Packages.gz",
+			  "/non-free/binary-$includearch/Packages.gz",
+			  "/main/debian-installer/binary-$includearch/Packages.gz"
+			 );
+  }
+  foreach $packageinclude (@packageincludes) {
+    $includestring .= " --include \"$packageinclude\"";
   }
   $errcode = system(
 		    "rsync -P --recursive --times --verbose --compress --delete-excluded".$includestring." --include \"*/\" --exclude \"*\" $server\:\:$serverpath/dists/sid/ $rootdir/dists/sid/ 1> Package.output 2> Package.error"
@@ -211,8 +214,15 @@ open (INCLUDEFILE, ">", "includefile");
 
 if (-e "static-includes") {
     open (SINCLUDES, "static-includes");
-    @sincludes = <SINCLUDES>;
-    print "Inserting ", $#sincludes, " records from static-includes...\n";
+    while (<SINCLUDES>) {
+      if ($_ =~ /^\w{3,6}\:\/\/.*\,/) {
+	push(@urlincludes, $_);
+      }else {
+	push(@sincludes, $_);
+      }
+    }
+    print "Inserting ", ($#sincludes + 1), " records from static-includes...\n";
+    print "Inserting ", ($#urlincludes + 1), " URL's from static-includes...\n";
     close SINCLUDES;
     print INCLUDEFILE @sincludes;
 }
@@ -272,29 +282,49 @@ if ($autorun != 1) {
   $proceed = <STDIN>;
   $proceed = uc($proceed);
   chomp $proceed;
-  if ($proceed eq "N") {
-    print "\nExiting...\n\n";
-    unlink ("sidmirror.lock");
-    exit 0;
-  }
 }
 
 chmod 0555, @modch;
 
-if (-s "./includefile") {
+if (-s "./includefile" && $proceed ne "N") {
   print "Starting rsync with $server...\n";
   `echo Starting rsync with $server... > $logdir/rsync.log`;
   $retcode = system ("rsync --recursive --links --hard-links --times --verbose --compress --include \"*/\" --include-from=includefile --exclude \"*\" $server\:\:$serverpath/ $rootdir/ >> $logdir/rsync.log 2>&1");
   $retcode /= 256;
   `echo End rsync with $server... exit value = $retcode >> $logdir/rsync.log`;
+  if ($retcode > 0) {
+    print "An error was encountered while performing the rsync operation! The exit code reported was $retcode. Please check $logdir/rsync.log.0 for details.\n\n";
+  }else {
+    print "rsync completed successfully!\n\n";
+  }
 }else {
   print "No files to fetch from $server... skipping...\n";
   `echo No files to fetch from $server... skipping... >> $logdir/rsync.log`;
 }
-if ($retcode > 0) {
-  print "An error was encountered while performing the rsync operation! The exit code reported was $retcode. Please check $logdir/rsync.log.0 for details.\n\n";
-}else {
-  print "rsync completed successfully!\n\n";
+
+undef($retcode);
+
+if (@urlincludes) {
+  for (@urlincludes) {
+    print "Starting wget with $myurl...\n";
+    ($myurl, $mypath, $mycommand) = split(/,/);
+    $retcode = system("wget -a $logdir/wget.log -N -P $rootdir/$mypath $myurl");
+    if ($retcode > 0) {
+      print "An error was encountered while performing the wget operation with $myurl! The exit code reported was $retcode. Please check $logdir/wget.log.0 for details.\n\n";
+    }else {
+      print "wget with $myurl completed successfully!\n";
+      if ($mycommand) {
+      	chomp($mycommand);
+	chdir "$rootdir/$mypath" || die ("Unable to enter $rootdir/$mypath!\n");
+	print "Executing '$mycommand'...\n\n";
+	`$mycommand`;
+	chdir $installpath || die ("Unable to enter InstallPath!\n");
+      }else{
+        print "\n";
+      }
+    }
+  }
+  `savelog $logdir/wget.log`;
 }
 
 `savelog $logdir/rsync.log`;

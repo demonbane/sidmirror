@@ -6,7 +6,7 @@
 # See www.fsf.org for a full copy of the GPL.
 
 use Term::ProgressBar 2.00;
-use ConfigFile;
+use Config::File;
 
 if (-e "/etc/sidmirror.conf") {
     $config_file_name = "/etc/sidmirror.conf";
@@ -14,7 +14,7 @@ if (-e "/etc/sidmirror.conf") {
     die ("Unable to read configuration file! Aborting...");
 }
 
-my $config_hash = ConfigFile::read_config_file($config_file_name);
+my $config_hash = Config::File::read_config_file($config_file_name);
 
 if ($config_hash->{"LocalPath"}) {
     $rootdir = $config_hash->{"LocalPath"};
