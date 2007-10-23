@@ -1,4 +1,17 @@
-sidmirror (0.11-1) UNRELEASED; urgency=low
+sidmirror (0.11-2) unstable; urgency=low
+
+  * Ok, so I didn't really do a good job with the last version. This still
+    isn't quite ready for Debianization, but it's good enough to be run
+    manually from the command line.
+  * Added -v option to show current version and exit (updated TODO).
+  * Changed the order the option parsing code. For some reason I had written
+    the config-file parsing to execute PRIOR to parsing the command line
+    options, even though some of the options would cause the program to exit
+    immediately... go figure.
+
+ -- Alex Malinovich <demonbane@the-love-shack.net>  Tue, 23 Oct 2007 13:03:11 -0700
+
+sidmirror (0.11-1) unstable; urgency=low
 
   * Initial setup of Debian package. Still have a few kinks to work out, but
     this will do for now.
@@ -23,4 +36,4 @@ sidmirror (0.11-1) UNRELEASED; urgency=low
     immediately.
   * Added new debian files to SVN.
 
- -- Alex Malinovich <demonbane@the-love-shack.net>  Tue, 23 Oct 2007 12:55:29 -0700
+ -- Alex Malinovich <demonbane@the-love-shack.net>  Tue, 23 Oct 2007 13:03:03 -0700

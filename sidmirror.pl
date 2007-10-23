@@ -29,6 +29,35 @@ use Term::ProgressBar 2.00;
 use Fcntl;
 use Config::File;
 
+$autorun = 0;
+$force = 0;
+
+while (@ARGV) {
+  my $option = shift (@ARGV);
+  if ($option eq "--help" || $option eq "-h") {
+    print "Usage: sidmirror [OPTION]\n";
+    print "Update local Debian Sid mirror.\n\n";
+    print "  -h, --help      display this screen and exit\n";
+    print "  -a, --auto      run in automated mode; no user intervention required\n";
+    print "  -f, --force     ignore lockfile and run anyway (DANGEROUS!)\n";
+    print "  -v, --version   display version and exit\n\n";
+    exit 0;
+  }elsif ($option eq "-a" || $option eq "--auto") {
+    $autorun = 1;
+  }elsif ($option eq "-f" || $option eq "--force") {
+    $force = 1;
+  }elsif ($option eq "-v" || $option eq "--version") {
+    print "sidmirror $version\n";
+    exit 0;
+  }elsif ($option =~ /^\w/) {
+    $server = $option;
+  }else {
+    print STDERR "sidmirror: invalid option -- $option\n";
+    print STDERR "Try \`sidmirror --help\' for more information.\n";
+    exit 1;
+  }
+}
+
 if (-e "/etc/sidmirror.conf") {
   my $config_hash = Config::File::read_config_file("/etc/sidmirror.conf");
 
@@ -75,31 +104,6 @@ if (-e "/etc/sidmirror.conf") {
   print "sidmirror configuration file (sidmirror.conf) not found!\n";
   print "Please create an appropriate configuration file and try again.\n\n";
   exit 0;
-}
-
-$autorun = 0;
-$force = 0;
-
-while (@ARGV) {
-  my $option = shift (@ARGV);
-  if ($option eq "--help" || $option eq "-h") {
-    print "Usage: sidmirror [OPTION]\n";
-    print "Update local Debian Sid mirror.\n\n";
-    print "  -h, --help      display this screen and exit\n";
-    print "  -a, --auto      run in automated mode; no user intervention required\n";
-    print "  -f, --force     ignore lockfile and run anyway (DANGEROUS!)\n\n";
-    exit 0;
-  }elsif ($option eq "-a" || $option eq "--auto") {
-    $autorun = 1;
-  }elsif ($option eq "-f" || $option eq "--force") {
-    $force = 1;
-  }elsif ($option =~ /^\w/) {
-    $server = $option;
-  }else {
-    print STDERR "sidmirror: invalid option -- $option\n";
-    print STDERR "Try \`sidmirror --help\' for more information.\n";
-    exit 1;
-  }
 }
 
 chdir $installpath || die ("Unable to enter InstallPath!\n");
