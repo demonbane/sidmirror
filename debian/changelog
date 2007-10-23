@@ -13,8 +13,10 @@ sidmirror (0.11-2) unstable; urgency=low
     change. I need to get in the habit of only doing a debcommit when there
     are a series of major changes and just doing a regular commit for minor
     updates.
+  * Err... disregard that last... looks like debcommit is smart enough to only
+    use the most recent changes... And this is a COMPLETELY useless commit.
 
- -- Alex Malinovich <demonbane@the-love-shack.net>  Tue, 23 Oct 2007 13:15:20 -0700
+ -- Alex Malinovich <demonbane@the-love-shack.net>  Tue, 23 Oct 2007 13:17:18 -0700
 
 sidmirror (0.11-1) unstable; urgency=low
 
