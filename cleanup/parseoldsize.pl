@@ -22,25 +22,18 @@ foreach (@filenames) {
   $totalsize += -s;
 }
 
-if ($ARGV[0] eq "-h") {
+if ($ARGV[0] eq "-h" && $count > 0) {
   if ($totalsize > 1073741824) {
-    printf ("%.2f", ($totalsize / 1073741824));
-    print "GB\n";
+    $totalsize = sprintf("%.2fGB", ($totalsize / 1073741824));
   }elsif ($totalsize > 1048576) {
-    printf ("%.2f", ($totalsize / 1048576));
-    print "MB\n";
+    $totalsize = sprintf ("%.2fMB", ($totalsize / 1048576));
   }elsif ($totalsize > 1024) {
-    printf ("%.2f", ($totalsize / 1024));
-    print "KB\n";
-  }else {
-    print "$totalsize bytes\n";
+    $totalsize = sprintf ("%.2fKB", ($totalsize / 1024));
   }
-}else {
-  print "$totalsize bytes\n";
 }
 
 if ($count > 0) {
-  print "$count files still exist!\n";
+  print "$count files still exist! ($totalsize)\n";
   print "Writing undeleted files to deleteme.txt\n";
   open (DELETEME, ">", "deleteme.txt");
   print DELETEME @deleteme;

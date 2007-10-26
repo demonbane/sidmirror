@@ -20,8 +20,11 @@ sidmirror (0.11-2) unstable; urgency=low
     sure if half of it ever even ran. Cleaned up now.
   * Fixed problem with new unlink method (needed to chomp filenames before
     attempting an unlink).
+  * Updated parseoldsize.pl to only print sizes if $count > 0, kind of silly
+    to print a 0 for no reason. Also updated the output produced to show the
+    total size after the count message instead of on a separate line.
 
- -- Alex Malinovich <demonbane@the-love-shack.net>  Fri, 26 Oct 2007 12:19:47 -0700
+ -- Alex Malinovich <demonbane@the-love-shack.net>  Fri, 26 Oct 2007 12:30:56 -0700
 
 sidmirror (0.11-1) unstable; urgency=low
 
