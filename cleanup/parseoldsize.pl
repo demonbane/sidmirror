@@ -9,7 +9,7 @@ open (OUTRES, "outputresults.txt");
 @outres = <OUTRES>;
 close OUTRES;
 
-print ("Read ".($#outres + 1)." records...\n");
+print ("Read ".($#outres + 1)." records... ");
 
 @filenames = @outres;
 
@@ -38,4 +38,6 @@ if ($count > 0) {
   open (DELETEME, ">", "deleteme.txt");
   print DELETEME @deleteme;
   close DELETEME;
+}else{
+  print "no files to delete!\n";
 }
