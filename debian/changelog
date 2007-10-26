@@ -18,8 +18,10 @@ sidmirror (0.11-2) unstable; urgency=low
   * Updated cleanold.pl to use unlink instead of rm. Looking through the code
     I still have no idea what I was thinking when I wrote it. I'm not even
     sure if half of it ever even ran. Cleaned up now.
+  * Fixed problem with new unlink method (needed to chomp filenames before
+    attempting an unlink).
 
- -- Alex Malinovich <demonbane@the-love-shack.net>  Tue, 23 Oct 2007 13:53:57 -0700
+ -- Alex Malinovich <demonbane@the-love-shack.net>  Fri, 26 Oct 2007 12:19:47 -0700
 
 sidmirror (0.11-1) unstable; urgency=low
 

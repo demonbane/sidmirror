@@ -17,10 +17,12 @@ close INFILE;
 
 print ("Read ".($#filenames + 1)." entries...\n");
 
+chomp(@filenames);
+
 $count = unlink(@filenames);
 
-if ($count != $#filenames + 1) {
-  print "$count files deleted - ",($filenames + 1 - $count)," files remain\n";
+if ($count != ($#filenames + 1)) {
+  print "$count files deleted - ",($#filenames + 1 - $count)," files remain\n";
 }else {
   print "$count files deleted\n";
 }
