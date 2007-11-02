@@ -317,6 +317,7 @@ if (@urlincludes) {
     print "Starting wget with $myurl...\n";
     ($myurl, $mypath, $mycommand) = split(/,/);
     $retcode = system("wget -a $logdir/wget.log -N -P $rootdir/$mypath $myurl");
+    $retcode /= 256;
     if ($retcode > 0) {
       print "An error was encountered while performing the wget operation with $myurl! The exit code reported was $retcode. Please check $logdir/wget.log.0 for details.\n\n";
     }else {
