@@ -314,8 +314,8 @@ undef($retcode);
 
 if (@urlincludes) {
   for (@urlincludes) {
-    print "Starting wget with $myurl...\n";
     ($myurl, $mypath, $mycommand) = split(/,/);
+    print "Starting wget with $myurl...\n";
     $retcode = system("wget -a $logdir/wget.log -N -P $rootdir/$mypath $myurl");
     $retcode /= 256;
     if ($retcode > 0) {
