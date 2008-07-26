@@ -120,10 +120,10 @@ if (!sysopen(FH, "sidmirror.lock", O_WRONLY|O_EXCL|O_CREAT, 0400)) {
     print "WARNING!!!\nStale lockfile found. Removing... ";
     do {
       $pid = `pidof -x -o %PPID sidmirror`;
-      if ($pid ne "\n") {`kill -9 $pid`};
-    }while ($pid ne "\n");
+      if ($pid ne "\n" && $pid) {`kill -9 $pid`};
+    }while ($pid ne "\n" && $pid);
     unlink "sidmirror.lock";
-    print "Done!";
+    print "Done!\n";
     sysopen(FH, "sidmirror.lock", O_WRONLY|O_EXCL|O_CREAT, 0400) || die $!;
   }elsif ($force) {
     print "Lockfile found, but proceeding anyway as you request.\n";
