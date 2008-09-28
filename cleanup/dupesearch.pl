@@ -30,10 +30,13 @@ if ($config_hash->{"Architecture"}) {
 if ($ARGV[0] eq "-a") {
     $autorun = 1;
 }
+if ($ARGV[1] eq "-q") {
+    $quiet = 1;
+}
 
-print "Getting directory listing for $rootdir\n";
+print "Getting directory listing for $rootdir\n" unless ($quiet);
 `find $rootdir -iname "*.deb" -fprintf dirliststuff.txt "\%P\n"`;
-print "Done!\n\n";
+print "Done!\n\n" unless ($quiet);
 
 opendir (DISTDIR, "$rootdir/dists/sid/");
 @dirlist = grep {!/^\./ && -d "$rootdir/dists/sid/$_"} readdir (DISTDIR);
@@ -43,15 +46,15 @@ foreach $packagearch (@arch) {
   foreach (@dirlist) {
     my $packname = "$rootdir/dists/sid/$_/binary-$packagearch/Packages.gz";
     if (-s $packname) {
-      print "Reading records from $_ ($packagearch) Packages.gz...\n";
+      print "Reading records from $_ ($packagearch) Packages.gz...\n" unless ($quiet);
       $oldcount = $#packfile;
       push (@packfile, `gunzip --to-stdout $packname`);
-      print ((++$#packfile - $oldcount), " records read from $_\n\n");
+      print ((++$#packfile - $oldcount), " records read from $_\n\n") unless ($quiet);
     }
   }
 }
 
-print "Extracting filenames...\n";
+print "Extracting filenames...\n" unless ($quiet);
 
 foreach (@packfile) {
   if ($_ =~ /^Filename\: /) {
@@ -62,23 +65,23 @@ foreach (@packfile) {
 @usfiles = @filenames;
 undef @packfile;
 undef @filenames;
-print "Read $#usfiles entries...\n\n";
+print "Read $#usfiles entries...\n\n" unless ($quiet);
 
 open (DIRLIST, "dirliststuff.txt");
 @dirlist = <DIRLIST>;
 close DIRLIST;
 
-print "Sorting arrays...\n";
+print "Sorting arrays...\n" unless ($quiet);
 
 @sorteddir = sort @dirlist;
 @sortedusfiles = sort @usfiles;
 
-print "Done!\n\n";
+print "Done!\n\n" unless ($quiet);
 
 $countertotal = $#sorteddir + 1;
 $currentcount = 0;
 
-print "Searching for old files...\n";
+print "Searching for old files...\n" unless ($quiet);
 
 if ($autorun != 1) {
     $progressbar = Term::ProgressBar->new($countertotal);
@@ -108,9 +111,11 @@ if ($countertotal >= $next_update && $autorun != 1) {
   $progressbar->update($countertotal);
 }
 
-print "", ($#deleteme + 1), " main files found for deletion\n";
-print "Writing outputresults.txt... ";
+if (! $quiet) {
+  print "", ($#deleteme + 1), " main files found for deletion\n";
+  print "Writing outputresults.txt... ";
+}
 open (OUTRESULTS, ">", "outputresults.txt");
 print OUTRESULTS @deleteme;
 close OUTRESULTS;
-print "Done!\n\n";
+print "Done!\n\n" unless ($quiet);

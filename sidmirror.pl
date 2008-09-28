@@ -42,6 +42,7 @@ while (@ARGV) {
     print "  -a, --auto      run in automated mode; no user intervention required\n";
     print "  -n, --noconfig  run even if there is no config file (uses defaults)\n";
     print "  -f, --force     ignore lockfile and run anyway (DANGEROUS!)\n";
+    print "  -q, --quiet     only print errors (implies -a)\n";
     print "  -v, --version   display version and exit\n\n";
     exit 0;
   }elsif ($option eq "-a" || $option eq "--auto") {
@@ -53,6 +54,9 @@ while (@ARGV) {
     exit 0;
   }elsif ($option eq "-n" || $option eq "--noconfig") {
     $noconfig = 1;
+  }elsif ($option eq "-q" || $option eq "--quiet") {
+    $quiet = 1;
+    $autorun = 1;
   }elsif ($option =~ /^\w/) {
     $server = $option;
   }else {
@@ -75,7 +79,7 @@ if (-e "/etc/sidmirror.conf") {
     $serverpath = $config_hash->{"RepositoryPath"};
     if (substr($serverpath, 0, 1) eq "/") {
     	$serverpath=substr($serverpath, 1);
-	print "Modifying RepositoryPath to \"$serverpath\"\n";
+	print "Modifying RepositoryPath to \"$serverpath\"\n" unless ($quiet);
     }
   }else {
     $serverpath = "debian";
@@ -131,7 +135,7 @@ if (!sysopen(FH, "sidmirror.lock", O_WRONLY|O_EXCL|O_CREAT, 0400)) {
     print "This may break your mirror! You have been warned!\n\n";
   }else {
     print "Lockfile found, aborting!\n";
-    exit 0;
+    exit 1;
   }
 }
 
@@ -139,7 +143,7 @@ if (!sysopen(FH, "sidmirror.lock", O_WRONLY|O_EXCL|O_CREAT, 0400)) {
 ## Download the newest Packages.gz from $server
 ################################################
 do {
-  print "Retrieving newest Packages.gz from $server...\n";
+  print "Retrieving newest Packages.gz from $server...\n" unless ($quiet);
   # Generate our include string
   foreach $includearch (@arch) {
     push(@packageincludes,"/main/binary-$includearch/Packages.gz",
@@ -169,7 +173,7 @@ do {
       unlink ("sidmirror.lock");
       exit 1;
     }
-  }else {
+  }elsif (! $quiet) {
     print "\nDone!\n\n";
   }
 }while ($retry eq "true");
@@ -187,10 +191,10 @@ foreach $packagearch (@arch) {
   foreach (@dirlist) {
     my $packname = "$rootdir/dists/sid/$_/binary-$packagearch/Packages.gz";
     if (-s $packname) {
-      print "Reading records from ($packagearch) $_ Packages.gz...\n";
+      print "Reading records from ($packagearch) $_ Packages.gz...\n" unless ($quiet);
       $oldcount = $#packfile;
       push (@packfile, `gunzip --to-stdout $packname`);
-      print (($#packfile + 1 - $oldcount), " records read from $_\n\n");
+      print (($#packfile + 1 - $oldcount), " records read from $_\n\n") unless ($quiet);
       push (@modch, "$packname");
     }
   }
@@ -208,7 +212,7 @@ foreach (@packfile) {
   }
 }
 
-print "Done!\n\n";
+print "Done!\n\n" unless ($quiet);
 
 # TODO: _POSSIBLY_ have the script compare the files already present to
 # the names and sizes listed in Packages.gz and exclude ones that match.
@@ -216,7 +220,7 @@ print "Done!\n\n";
 # packages to be updated. I'll have to think about this one.
 
 # Generate a list of files we need from the standard distrib
-print "Generating includefile...\n";
+print "Generating includefile...\n" unless ($quiet);
 
 open (INCLUDEFILE, ">", "includefile");
 
@@ -229,8 +233,10 @@ if (-e "static-includes") {
 	push(@sincludes, $_);
       }
     }
-    print "Inserting ", ($#sincludes + 1), " records from static-includes...\n";
-    print "Inserting ", ($#urlincludes + 1), " URL's from static-includes...\n";
+    if (! $quiet) {
+      print "Inserting ", ($#sincludes + 1), " records from static-includes...\n";
+      print "Inserting ", ($#urlincludes + 1), " URL's from static-includes...\n";
+    }
     close SINCLUDES;
     print INCLUDEFILE @sincludes;
 }
@@ -261,9 +267,11 @@ if ($currentcount >= $next_update && $autorun != 1) {
 }
 
 close INCLUDEFILE;
-print $includedfiles, " records written\n";
-printf ("%.2f", ($sizetoget / 1048576));
-print "MB to download\n";
+if (! $quiet) {
+  print $includedfiles, " records written\n";
+  printf ("%.2f", ($sizetoget / 1048576));
+  print "MB to download\n";
+}
 $ussize = $sizetoget;
 
 if ($autorun != 1) {
@@ -273,13 +281,20 @@ if ($autorun != 1) {
   chomp $proceed;
 }
 if ($proceed ne "N") {
-  if ($autorun != 1) {
-      system ("./cleanup/dupesearch.pl");
-  }else{
-      system ("./cleanup/dupesearch.pl -a");
+  my $dupeargs = "";
+  my $parseargs = " -h";
+  my $cleanargs = "";
+  if ($autorun) {
+      $dupeargs = " -a";
   }
-  system ("./cleanup/parseoldsize.pl -h");
-  system ("./cleanup/cleanold.pl");
+  if ($quiet) {
+      $dupeargs .= " -q";
+      $parseargs = " -q";
+      $cleanargs = " -q";
+  }
+  system ("./cleanup/dupesearch.pl".$dupeargs);
+  system ("./cleanup/parseoldsize.pl".$parseargs);
+  system ("./cleanup/cleanold.pl".$cleanargs);
 }
 
 if ($autorun != 1) {
@@ -295,17 +310,17 @@ if ($autorun != 1) {
 chmod 0555, @modch;
 
 if (-s "./includefile" && $proceed ne "N") {
-  print "Starting rsync with $server...\n";
+  print "Starting rsync with $server...\n" unless ($quiet);
   `echo Starting rsync with $server... > $logdir/rsync.log`;
   $retcode = system ("rsync --recursive --links --hard-links --times --verbose --compress --include \"*/\" --include-from=includefile --exclude \"*\" $server\:\:$serverpath/ $rootdir/ >> $logdir/rsync.log 2>&1");
   $retcode /= 256;
   `echo End rsync with $server... exit value = $retcode >> $logdir/rsync.log`;
   if ($retcode > 0) {
     print "An error was encountered while performing the rsync operation! The exit code reported was $retcode. Please check $logdir/rsync.log.0 for details.\n\n";
-  }else {
+  }elsif (! $quiet) {
     print "rsync completed successfully!\n\n";
   }
-}else {
+}elsif (! $quiet) {
   print "No files to fetch from $server... skipping...\n";
   `echo No files to fetch from $server... skipping... >> $logdir/rsync.log`;
 }
@@ -315,20 +330,20 @@ undef($retcode);
 if (@urlincludes) {
   for (@urlincludes) {
     ($myurl, $mypath, $mycommand) = split(/,/);
-    print "Starting wget with $myurl...\n";
+    print "Starting wget with $myurl...\n" unless ($quiet);
     $retcode = system("wget -a $logdir/wget.log -N -P $rootdir/$mypath $myurl");
     $retcode /= 256;
     if ($retcode > 0) {
       print "An error was encountered while performing the wget operation with $myurl! The exit code reported was $retcode. Please check $logdir/wget.log.0 for details.\n\n";
-    }else {
+    }elsif (! $quiet) {
       print "wget with $myurl completed successfully!\n";
       if ($mycommand) {
       	chomp($mycommand);
 	chdir "$rootdir/$mypath" || die ("Unable to enter $rootdir/$mypath!\n");
-	print "Executing '$mycommand'...\n\n";
+	print "Executing '$mycommand'...\n\n" unless ($quiet);
 	`$mycommand`;
 	chdir $installpath || die ("Unable to enter InstallPath!\n");
-      }else{
+      }elsif (! $quiet) {
         print "\n";
       }
     }
@@ -340,7 +355,7 @@ if (@urlincludes) {
 
 chmod 0755, @modch;
 
-if ($retcode == 0 && $errcode == 0) {
+if ($retcode == 0 && $errcode == 0 && ! $quiet) {
   print "All operations completed successfully!\n\n";
 }else {
   print "Errors encountered during operation! Please check Package.error and $logdir/rsync.log.0 for details!\n\n";

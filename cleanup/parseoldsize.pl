@@ -9,7 +9,11 @@ open (OUTRES, "outputresults.txt");
 @outres = <OUTRES>;
 close OUTRES;
 
-print ("Read ".($#outres + 1)." records... ");
+if ($ARGV[0] eq "-q") {
+  $quiet = 1;
+}
+
+print ("Read ".($#outres + 1)." records... ") unless ($quiet);
 
 @filenames = @outres;
 
@@ -33,11 +37,13 @@ if ($ARGV[0] eq "-h" && $count > 0) {
 }
 
 if ($count > 0) {
-  print "$count files still exist! ($totalsize)\n";
-  print "Writing undeleted files to deleteme.txt\n";
+  if (! $quiet) {
+    print "$count files still exist! ($totalsize)\n";
+    print "Writing undeleted files to deleteme.txt\n";
+  }
   open (DELETEME, ">", "deleteme.txt");
   print DELETEME @deleteme;
   close DELETEME;
-}else{
+}elsif (! $quiet) {
   print "no files to delete!\n";
 }

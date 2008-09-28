@@ -11,11 +11,15 @@ if (-e "deleteme.txt") {
   $myinfile = "outputresults.txt";
 }
 
+if ($ARGV[0] eq "-q") {
+  $quiet = 1;
+}
+
 open (INFILE, "$myinfile");
 @filenames = <INFILE>;
 close INFILE;
 
-print ("Read ".($#filenames + 1)." entries...\n");
+print ("Read ".($#filenames + 1)." entries...\n") unless ($quiet);
 
 chomp(@filenames);
 
@@ -23,7 +27,7 @@ $count = unlink(@filenames);
 
 if ($count != ($#filenames + 1)) {
   print "$count files deleted - ",($#filenames + 1 - $count)," files remain\n";
-}else {
+}elsif (! $quiet) {
   print "$count files deleted\n";
 }
 
