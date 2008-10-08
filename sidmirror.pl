@@ -357,7 +357,7 @@ chmod 0755, @modch;
 
 if ($retcode == 0 && $errcode == 0 && ! $quiet) {
   print "All operations completed successfully!\n\n";
-}else {
+}elsif (! $quiet) {
   print "Errors encountered during operation! Please check Package.error and $logdir/rsync.log.0 for details!\n\n";
 }
 
