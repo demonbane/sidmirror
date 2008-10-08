@@ -355,9 +355,9 @@ if (@urlincludes) {
 
 chmod 0755, @modch;
 
-if ($retcode == 0 && $errcode == 0 && ! $quiet) {
-  print "All operations completed successfully!\n\n";
-}elsif (! $quiet) {
+if ($retcode == 0 && $errcode == 0) {
+  print "All operations completed successfully!\n\n" unless ($quiet);
+}else {
   print "Errors encountered during operation! Please check Package.error and $logdir/rsync.log.0 for details!\n\n";
 }
 
