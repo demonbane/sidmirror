@@ -335,8 +335,8 @@ if (@urlincludes) {
     $retcode /= 256;
     if ($retcode > 0) {
       print "An error was encountered while performing the wget operation with $myurl! The exit code reported was $retcode. Please check $logdir/wget.log.0 for details.\n\n";
-    }elsif (! $quiet) {
-      print "wget with $myurl completed successfully!\n";
+    }else {
+      print "wget with $myurl completed successfully!\n" unless ($quiet);
       if ($mycommand) {
       	chomp($mycommand);
 	chdir "$rootdir/$mypath" || die ("Unable to enter $rootdir/$mypath!\n");
